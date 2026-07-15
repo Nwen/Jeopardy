@@ -4,6 +4,7 @@ WORKDIR /app
 # Install dependencies
 FROM base AS deps
 COPY package*.json ./
+COPY prisma ./prisma
 RUN npm ci
 
 # Build

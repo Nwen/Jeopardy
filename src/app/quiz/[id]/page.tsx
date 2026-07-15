@@ -53,14 +53,23 @@ export default function QuizPage({ params }: Readonly<{ params: Readonly<{ id: s
     setShowAnswer(false);
   };
 
+  const applyPenalty = (playerIdx: number) => {
+    if (!activeCell || !grid) return;
+    const value = grid.categories[activeCell.catIdx].questions[activeCell.qIdx].value;
+    setPlayers(p => p.map((player, i) =>
+      i === playerIdx ? { ...player, score: player.score - value } : player
+    ));
+    setCurrentPlayerIdx(i => (i + 1) % players.length);
+  };
+
   const resolveCell = (correct: boolean | null, playerIdx: number | null) => {
     if (!activeCell || !grid) return;
     const value = grid.categories[activeCell.catIdx].questions[activeCell.qIdx].value;
     const { catIdx, qIdx } = activeCell;
 
-    if (correct !== null && playerIdx !== null) {
+    if (correct && playerIdx !== null) {
       setPlayers(p => p.map((player, i) =>
-        i === playerIdx ? { ...player, score: player.score + (correct ? value : -value) } : player
+        i === playerIdx ? { ...player, score: player.score + value } : player
       ));
     }
 
@@ -289,7 +298,7 @@ export default function QuizPage({ params }: Readonly<{ params: Readonly<{ id: s
                   <p className="text-purple-400 text-xs uppercase tracking-wide pt-2">Pénalité (mauvaise réponse)</p>
                   <div className="flex flex-wrap gap-3 justify-center">
                     {players.map((p, i) => (
-                      <button key={`wrong-${p.name}`} onClick={() => resolveCell(false, i)} className="bg-red-900 hover:bg-red-800 text-red-300 font-bold px-4 py-2 rounded-xl transition text-sm">
+                      <button key={`wrong-${p.name}`} onClick={() => applyPenalty(i)} className="bg-red-900 hover:bg-red-800 text-red-300 font-bold px-4 py-2 rounded-xl transition text-sm">
                         ✗ {p.name} <span className="text-red-500 text-xs">−{activeQuestion.value}</span>
                       </button>
                     ))}

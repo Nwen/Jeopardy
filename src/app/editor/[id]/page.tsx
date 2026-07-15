@@ -25,16 +25,25 @@ function emptyGrid() {
   };
 }
 
-function applyQuestionUpdate(
+function applyQuestionUpdate<K extends keyof Question>(
   c: Category,
   qIdx: number,
-  field: keyof Question,
-  value: string,
+  field: K,
+  value: Question[K],
 ): Category {
   return {
     ...c,
     questions: c.questions.map((q, j) => j === qIdx ? { ...q, [field]: value } : q),
   };
+}
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 export default function EditorPage({ params }: Readonly<{ params: Readonly<{ id: string }> }>) {
@@ -65,6 +74,17 @@ export default function EditorPage({ params }: Readonly<{ params: Readonly<{ id:
     setCategories(cats => cats.map(c =>
       c.id === catId ? applyQuestionUpdate(c, qIdx, field, value) : c
     ));
+  };
+
+  const setQuestionImage = (catId: string, qIdx: number, imageUrl: string | undefined) => {
+    setCategories(cats => cats.map(c =>
+      c.id === catId ? applyQuestionUpdate(c, qIdx, 'imageUrl', imageUrl) : c
+    ));
+  };
+
+  const uploadQuestionImage = async (catId: string, qIdx: number, file: File | undefined) => {
+    if (!file) return;
+    setQuestionImage(catId, qIdx, await readFileAsDataUrl(file));
   };
 
   const addCategory = () => setCategories(cats => [...cats, emptyCategory()]);
@@ -163,6 +183,33 @@ export default function EditorPage({ params }: Readonly<{ params: Readonly<{ id:
                     rows={3}
                     className="w-full bg-purple-900 text-white text-sm p-2 rounded-lg outline-none resize-none mb-2 placeholder-purple-600 focus:bg-purple-800 transition"
                   />
+
+                  {q.imageUrl ? (
+                    <div className="relative mb-2">
+                      <img
+                        src={q.imageUrl}
+                        alt="Aperçu"
+                        className="w-full max-h-28 object-contain rounded-lg bg-purple-900"
+                      />
+                      <button
+                        onClick={() => setQuestionImage(cat.id, qIdx, undefined)}
+                        className="absolute top-1 right-1 bg-red-600 hover:bg-red-500 text-white w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="mb-2 flex items-center justify-center w-full bg-purple-900 border border-dashed border-purple-700 text-purple-400 text-xs p-2 rounded-lg cursor-pointer hover:border-purple-500 hover:text-purple-300 transition">
+                      {'+ Image'}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={e => uploadQuestionImage(cat.id, qIdx, e.target.files?.[0])}
+                      />
+                    </label>
+                  )}
+
                   <input
                     value={q.answer}
                     onChange={e => updateQuestion(cat.id, qIdx, 'answer', e.target.value)}

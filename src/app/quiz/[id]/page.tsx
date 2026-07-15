@@ -253,6 +253,13 @@ export default function QuizPage({ params }: Readonly<{ params: Readonly<{ id: s
               {grid.categories[activeCell.catIdx].name}
             </p>
             <p className="text-jeopardy-gold text-5xl font-black mb-6">{activeQuestion.value}</p>
+            {activeQuestion.imageUrl && (
+              <img
+                src={activeQuestion.imageUrl}
+                alt=""
+                className="max-h-72 max-w-full object-contain rounded-xl mx-auto mb-6"
+              />
+            )}
             <p className="text-white text-2xl font-bold leading-relaxed mb-8">{activeQuestion.question}</p>
 
             {!showAnswer ? (

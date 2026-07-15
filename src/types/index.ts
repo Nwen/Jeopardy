@@ -2,6 +2,7 @@ export interface Question {
   value: number;
   question: string;
   answer: string;
+  imageUrl?: string;
 }
 
 export interface Category {

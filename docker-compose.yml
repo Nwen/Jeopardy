@@ -1,0 +1,14 @@
+services:
+  jeopardy:
+    build: .
+    container_name: jeopardy
+    ports:
+      - "32002:3000"
+    volumes:
+      - jeopardy-data:/data
+    environment:
+      - DATABASE_URL=file:/data/jeopardy.db
+    restart: unless-stopped
+
+volumes:
+  jeopardy-data:

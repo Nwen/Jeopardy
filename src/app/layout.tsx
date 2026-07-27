@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import packageJson from '../../package.json';
 
 export const metadata: Metadata = {
   title: 'Jeopardy!',
@@ -9,7 +10,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
-      <body className="bg-jeopardy-blue">{children}</body>
+      <body className="bg-jeopardy-blue">
+        {children}
+        <p className="text-center text-purple-800 text-xs py-2">v{packageJson.version}</p>
+      </body>
     </html>
   );
 }

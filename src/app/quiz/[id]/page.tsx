@@ -59,7 +59,6 @@ export default function QuizPage({ params }: Readonly<{ params: Readonly<{ id: s
     setPlayers(p => p.map((player, i) =>
       i === playerIdx ? { ...player, score: player.score - value } : player
     ));
-    setCurrentPlayerIdx(i => (i + 1) % players.length);
   };
 
   const resolveCell = (correct: boolean | null, playerIdx: number | null) => {
@@ -77,10 +76,7 @@ export default function QuizPage({ params }: Readonly<{ params: Readonly<{ id: s
       row.map((cell, qi) => ci === catIdx && qi === qIdx ? { played: true, correct } : cell)
     ));
     setActiveCell(null);
-
-    if (correct !== null) {
-      setCurrentPlayerIdx(i => (i + 1) % players.length);
-    }
+    setCurrentPlayerIdx(i => (i + 1) % players.length);
 
     const allDone = board.every((row, ci) =>
       row.every((cell, qi) => (ci === catIdx && qi === qIdx) || cell.played)

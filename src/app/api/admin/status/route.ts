@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  return NextResponse.json({ required: Boolean(process.env.ADMIN_PASSWORD) });
+  const required = Boolean(process.env.ADMIN_PASSWORD);
+  console.log(`[admin-status] ADMIN_PASSWORD is ${required ? 'set' : 'not set'}`);
+  return NextResponse.json({ required });
 }

@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
+import { isAdminConfigured } from '@/lib/adminAuth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const required = Boolean(process.env.ADMIN_PASSWORD);
-  console.log(`[admin-status] ADMIN_PASSWORD is ${required ? 'set' : 'not set'}`);
-  return NextResponse.json({ required });
+  const required = await isAdminConfigured();
+  console.log(`[admin-status] admin password is ${required ? 'configured' : 'not configured'}`);
+  return NextResponse.json({ required, needsSetup: !required });
 }

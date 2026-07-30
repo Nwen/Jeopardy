@@ -1,0 +1,5 @@
+-- CreateTable
+CREATE TABLE "AdminConfig" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT DEFAULT 1,
+    "passwordHash" TEXT NOT NULL
+);

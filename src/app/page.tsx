@@ -4,7 +4,7 @@ import Link from 'next/link';
 import type { GridListItem } from '@/types';
 import { adminFetch } from '@/lib/adminFetch';
 import { setAdminPassword, clearAdminSession, isAdminLoggedIn } from '@/lib/adminSession';
-import { requestPassword, requestConfirm, requestAlert } from '@/lib/dialogStore';
+import { requestPassword, requestConfirm, requestAlert, requestPasswordSetup } from '@/lib/dialogStore';
 
 export default function Home() {
   const [grids, setGrids] = useState<GridListItem[]>([]);
@@ -16,10 +16,30 @@ export default function Home() {
     fetch('/api/grids')
       .then(r => r.json())
       .then(data => { setGrids(data); setLoading(false); });
+    setIsAdmin(isAdminLoggedIn());
+
     fetch('/api/admin/status')
       .then(r => r.json())
-      .then(data => setAdminRequired(data.required));
-    setIsAdmin(isAdminLoggedIn());
+      .then(async data => {
+        setAdminRequired(data.required);
+        if (!data.needsSetup) return;
+
+        const password = await requestPasswordSetup(
+          "Aucun mot de passe administrateur n'est configuré. Créez-en un pour protéger la création, la modification et la suppression des grilles :"
+        );
+        if (!password) return;
+
+        const res = await fetch('/api/admin/setup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password }),
+        });
+        if (!res.ok) { await requestAlert('Erreur lors de la création du mot de passe.'); return; }
+
+        setAdminPassword(password);
+        setIsAdmin(true);
+        setAdminRequired(true);
+      });
   }, []);
 
   const canEdit = !adminRequired || isAdmin;

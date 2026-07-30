@@ -1,7 +1,8 @@
 export type DialogRequest =
   | { type: 'password'; message: string; resolve: (value: string | null) => void }
   | { type: 'confirm'; message: string; resolve: (value: boolean) => void }
-  | { type: 'alert'; message: string; resolve: () => void };
+  | { type: 'alert'; message: string; resolve: () => void }
+  | { type: 'setup'; message: string; resolve: (value: string | null) => void };
 
 let current: DialogRequest | null = null;
 const listeners = new Set<() => void>();
@@ -35,5 +36,11 @@ export function requestConfirm(message: string): Promise<boolean> {
 export function requestAlert(message: string): Promise<void> {
   return new Promise(resolve => {
     setCurrent({ type: 'alert', message, resolve: () => { setCurrent(null); resolve(); } });
+  });
+}
+
+export function requestPasswordSetup(message: string): Promise<string | null> {
+  return new Promise(resolve => {
+    setCurrent({ type: 'setup', message, resolve: value => { setCurrent(null); resolve(value); } });
   });
 }

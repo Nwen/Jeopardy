@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { isAdminAuthorized } from '@/lib/adminAuth';
 
 export async function GET() {
   const grids = await prisma.grid.findMany({
@@ -10,6 +11,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  if (!isAdminAuthorized(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   const { name, categories } = await request.json();
   const grid = await prisma.grid.create({
     data: { name, data: JSON.stringify(categories) },

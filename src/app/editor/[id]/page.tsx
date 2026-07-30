@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Category, Question } from '@/types';
+import { adminFetch } from '@/lib/adminFetch';
+import { requestAlert } from '@/lib/dialogStore';
 
 const DEFAULT_VALUES = [100, 200, 300, 400, 500];
 
@@ -94,15 +96,42 @@ export default function EditorPage({ params }: Readonly<{ params: Readonly<{ id:
     setCategories(cats => cats.filter(c => c.id !== catId));
   };
 
+  const exportGrid = () => {
+    const blob = new Blob([JSON.stringify({ name: gridName, categories }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safeName = gridName.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'grille';
+    a.download = `${safeName}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importGrid = async (file: File | undefined) => {
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      if (typeof data?.name !== 'string' || !Array.isArray(data?.categories)) {
+        throw new Error('invalid grid file');
+      }
+      setGridName(data.name);
+      setCategories(data.categories.map((c: Category) => ({ ...c, id: c.id ?? genId() })));
+    } catch {
+      await requestAlert('Fichier invalide.');
+    }
+  };
+
   const save = async () => {
     setSaving(true);
     const body = { name: gridName, categories };
-    const res = await fetch(
+    const res = await adminFetch(
       isNew ? '/api/grids' : `/api/grids/${params.id}`,
       { method: isNew ? 'POST' : 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
     );
-    const data = await res.json();
     setSaving(false);
+    if (!res) return;
+    if (res.status === 401) { await requestAlert('Mot de passe incorrect.'); return; }
+    const data = await res.json();
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
     if (isNew) router.push(`/editor/${data.id}`);
@@ -130,10 +159,29 @@ export default function EditorPage({ params }: Readonly<{ params: Readonly<{ id:
         <input
           value={gridName}
           onChange={e => setGridName(e.target.value)}
-          className="text-2xl font-black text-jeopardy-gold bg-transparent border-b-2 border-jeopardy-gold outline-none flex-1 min-w-40 uppercase tracking-wide"
+          className="text-2xl font-black text-jeopardy-gold bg-transparent border-b-2 border-jeopardy-gold outline-none flex-1 min-w-40 tracking-wide"
           placeholder="Nom de la grille"
         />
         <div className="flex gap-3 flex-shrink-0">
+          <label className="bg-purple-800 hover:bg-purple-700 text-white font-bold px-5 py-3 rounded-xl uppercase transition cursor-pointer">
+            Importer
+            <input
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={e => {
+                const file = e.target.files?.[0];
+                e.target.value = '';
+                importGrid(file);
+              }}
+            />
+          </label>
+          <button
+            onClick={exportGrid}
+            className="bg-purple-800 hover:bg-purple-700 text-white font-bold px-5 py-3 rounded-xl uppercase transition"
+          >
+            Exporter
+          </button>
           <button
             onClick={save}
             disabled={saving}

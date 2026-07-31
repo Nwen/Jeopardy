@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-jeopardy-blue">
         {children}
         <DialogHost />
-        <p className="text-center text-purple-800 text-xs py-2">v{packageJson.version}</p>
+        <p className="fixed bottom-1 right-2 text-purple-800 text-xs pointer-events-none">v{packageJson.version}</p>
       </body>
     </html>
   );

@@ -72,7 +72,7 @@ export default function Home() {
         <h1 className="text-6xl font-black text-jeopardy-gold text-center mb-2 uppercase tracking-widest drop-shadow-lg">
           Jeopardy!
         </h1>
-        <p className="text-purple-300 text-center mb-12 text-lg">Créez et jouez vos propres quizz</p>
+        <p className="text-purple-300 text-center mb-12 text-lg">Grilles de quizz style Jeopardy! par Nwen</p>
 
         <div className="flex justify-end items-center gap-3 mb-6">
           {adminRequired && (

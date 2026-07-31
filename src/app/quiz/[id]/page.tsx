@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { Grid, Category } from '@/types';
+import AutoFitText from '@/components/AutoFitText';
 
 interface Player {
   name: string;
@@ -158,7 +159,7 @@ export default function QuizPage({ params }: Readonly<{ params: Readonly<{ id: s
   const numRows = grid.categories[0].questions.length;
 
   return (
-    <main className="min-h-screen flex flex-col p-3 gap-3">
+    <main className="h-screen flex flex-col p-3 gap-3 overflow-hidden">
       {/* Nav */}
       <div className="flex items-center gap-3">
         <Link href="/" className="text-purple-300 hover:text-white text-sm transition flex-shrink-0">← Quitter</Link>
@@ -180,7 +181,7 @@ export default function QuizPage({ params }: Readonly<{ params: Readonly<{ id: s
                   : 'bg-purple-950 text-white'
               }`}
             >
-              <p className="font-bold text-xs uppercase tracking-wide truncate">{p.name}</p>
+              <p className="font-bold text-2xl uppercase tracking-wide truncate">{p.name}</p>
 
               {isEditing ? (
                 <input
@@ -199,7 +200,7 @@ export default function QuizPage({ params }: Readonly<{ params: Readonly<{ id: s
                 <button
                   onClick={() => { setEditingScoreIdx(i); setEditScoreValue(String(p.score)); }}
                   title="Cliquer pour modifier"
-                  className={`text-3xl font-black mt-1 w-full rounded hover:opacity-70 transition ${p.score < 0 && !isActive ? 'text-red-400' : ''}`}
+                  className={`text-5xl font-black mt-1 w-full rounded hover:opacity-70 transition ${p.score < 0 && !isActive ? 'text-red-400' : ''}`}
                 >
                   {p.score < 0 ? '−' : ''}{Math.abs(p.score)}
                 </button>
@@ -214,15 +215,21 @@ export default function QuizPage({ params }: Readonly<{ params: Readonly<{ id: s
       {/* Board */}
       <div className="flex-1 overflow-auto">
         <div
-          className="grid gap-2 h-full"
-          style={{ gridTemplateColumns: `repeat(${numCols}, minmax(120px, 1fr))` }}
+          className="grid gap-3 h-full"
+          style={{
+            gridTemplateColumns: `repeat(${numCols}, minmax(160px, 1fr))`,
+            gridTemplateRows: `repeat(${numRows + 1}, 1fr)`,
+          }}
         >
           {/* Category headers */}
           {grid.categories.map((cat, catIdx) => (
-            <div key={`cat-${catIdx}`} className="bg-purple-950 border-2 border-purple-800 rounded-xl p-3 flex items-center justify-center min-h-[70px]">
-              <p className="text-jeopardy-gold font-black text-sm uppercase tracking-wide text-center leading-tight">
-                {cat.name}
-              </p>
+            <div key={`cat-${catIdx}`} className="bg-purple-950 border-2 border-purple-800 rounded-xl p-4 min-h-[90px] overflow-hidden">
+              <AutoFitText
+                text={cat.name}
+                maxFontSize={46}
+                minFontSize={11}
+                className="text-jeopardy-gold font-black uppercase tracking-wide text-center leading-tight h-full w-full flex items-center justify-center"
+              />
             </div>
           ))}
 
@@ -236,7 +243,7 @@ export default function QuizPage({ params }: Readonly<{ params: Readonly<{ id: s
                   key={`cell-${catIdx}-${qIdx}`}
                   onClick={() => openCell(catIdx, qIdx)}
                   disabled={cell?.played}
-                  className={`rounded-xl flex items-center justify-center min-h-[100px] font-black text-3xl border-2 transition ${
+                  className={`rounded-xl flex items-center justify-center min-h-[140px] font-black text-8xl border-2 transition ${
                     cell?.played
                       ? 'bg-purple-950 border-purple-950 cursor-not-allowed opacity-20'
                       : 'bg-purple-900 border-purple-700 text-jeopardy-gold hover:bg-purple-800 hover:border-jeopardy-gold cursor-pointer'
@@ -253,32 +260,32 @@ export default function QuizPage({ params }: Readonly<{ params: Readonly<{ id: s
       {/* Question modal */}
       {activeCell && activeQuestion && (
         <div className="fixed inset-0 bg-black/85 flex items-center justify-center p-6 z-50">
-          <div className="bg-purple-950 border-4 border-jeopardy-gold rounded-2xl max-w-2xl w-full p-8 text-center max-h-[90vh] overflow-y-auto">
-            <p className="text-purple-400 text-xs uppercase tracking-widest mb-1">
+          <div className="bg-purple-950 border-4 border-jeopardy-gold rounded-2xl max-w-[80%]  w-full p-10 text-center max-h-[90vh] overflow-y-auto">
+            <p className="text-purple-400 text-base uppercase tracking-widest mb-2">
               {grid.categories[activeCell.catIdx].name}
             </p>
-            <p className="text-jeopardy-gold text-5xl font-black mb-6">{activeQuestion.value}</p>
+            <p className="text-jeopardy-gold text-6xl font-black mb-8">{activeQuestion.value}</p>
             {activeQuestion.imageUrl && (
               <img
                 src={activeQuestion.imageUrl}
                 alt=""
-                className="max-h-72 max-w-full object-contain rounded-xl mx-auto mb-6"
+                className="max-h-96 max-w-full object-contain rounded-xl mx-auto mb-8"
               />
             )}
-            <p className="text-white text-2xl font-bold leading-relaxed mb-8">{activeQuestion.question}</p>
+            <p className="text-white text-7xl font-bold leading-relaxed mb-10">{activeQuestion.question}</p>
 
             {!showAnswer ? (
               <button
                 onClick={() => setShowAnswer(true)}
-                className="bg-jeopardy-gold text-jeopardy-blue font-black text-xl px-10 py-4 rounded-xl uppercase tracking-wide hover:brightness-110 transition"
+                className="bg-jeopardy-gold text-jeopardy-blue font-black text-2xl px-12 py-5 rounded-xl uppercase tracking-wide hover:brightness-110 transition"
               >
                 Révéler la réponse
               </button>
             ) : (
               <>
-                <div className="bg-green-950 border-2 border-green-700 rounded-xl p-5 mb-8">
-                  <p className="text-green-400 text-xs uppercase tracking-widest mb-2">Réponse</p>
-                  <p className="text-green-100 text-2xl font-bold">{activeQuestion.answer}</p>
+                <div className="bg-green-950 border-2 border-green-700 rounded-xl p-6 mb-8">
+                  <p className="text-green-400 text-base uppercase tracking-widest mb-2">Réponse</p>
+                  <p className="text-green-100 text-5xl font-bold">{activeQuestion.answer}</p>
                 </div>
 
                 <div className="space-y-4">

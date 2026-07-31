@@ -272,7 +272,7 @@ export default function QuizPage({ params }: Readonly<{ params: Readonly<{ id: s
                 className="max-h-96 max-w-full object-contain rounded-xl mx-auto mb-8"
               />
             )}
-            <p className="text-white text-7xl font-bold leading-relaxed mb-10">{activeQuestion.question}</p>
+            <p className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-relaxed mb-10 break-words">{activeQuestion.question}</p>
 
             {!showAnswer ? (
               <button
@@ -283,7 +283,7 @@ export default function QuizPage({ params }: Readonly<{ params: Readonly<{ id: s
               </button>
             ) : (
               <>
-                <div className="bg-green-950 border-2 border-green-700 rounded-xl p-6 mb-8">
+                <div className="inline-block max-w-full bg-green-950 border-2 border-green-700 rounded-xl p-6 mb-8">
                   <p className="text-green-400 text-base uppercase tracking-widest mb-2">Réponse</p>
                   <p className="text-green-100 text-5xl font-bold">{activeQuestion.answer}</p>
                 </div>

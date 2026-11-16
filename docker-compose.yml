@@ -1,6 +1,7 @@
 services:
   jeopardy:
     build: .
+    pull_policy: build # reconstruit l'image à chaque redéploiement (sinon l'ancienne est réutilisée)
     container_name: jeopardy
     ports:
       - "32002:3000"
